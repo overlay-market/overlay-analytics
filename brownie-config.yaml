@@ -1,0 +1,9 @@
+# use Ganache's forked mainnet mode as the default network
+networks:
+  default: mainnet
+
+# automatically fetch contract sources from Etherscan
+autofetch_sources: True
+
+# automatically load the local .env file
+dotenv: .env

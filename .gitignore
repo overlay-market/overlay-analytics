@@ -1,0 +1,4 @@
+csv/
+scripts/adhoc/__pycache__
+build/
+.env
