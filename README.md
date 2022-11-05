@@ -5,5 +5,5 @@ To run a script:
 ```
 poetry install
 poetry shell
-brownie run scripts/adhoc/unrealised_pnl_ethusdc.py
+brownie run scripts/adhoc/unrealised_pnl_ethusdc.py --network mainnet
 ```
