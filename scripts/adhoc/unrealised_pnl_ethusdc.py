@@ -1,6 +1,4 @@
-from distutils.command.build import build
 from brownie import Contract, multicall
-from itertools import chain as ichain
 import pandas as pd
 import numpy as np
 import time
