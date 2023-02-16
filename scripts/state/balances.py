@@ -6,3 +6,12 @@ def get_current_balances(users, token):
     with multicall:
         bal = [token.balanceOf(user) for user in users]
     return bal
+
+
+def get_past_balances(users, token, block):
+    bal = []
+    for user in users:
+        bal.append(
+            token.balanceOf(user, block_identifier=block)
+        )
+    return bal
