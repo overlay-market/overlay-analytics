@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import time
 from scripts.events import event_utils as eu
+from scripts.events import build
 from scripts import utils
 
 
@@ -43,3 +44,12 @@ def main(addr, from_block):
     )
     trans_df = eu.transfer_cols(trans_df)
     print('Dataframes built')
+
+    # Join build and transfers to get initial collateral from `value`
+    build_df = build.join_build_trans(build_df, trans_df)
+
+    # Remove build fees
+    build_df = build.remove_build_fees(build_df)
+
+    # Add leverage info
+    build_df = build.add_lev_col(build_df)
