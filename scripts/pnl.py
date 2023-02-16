@@ -41,4 +41,5 @@ def main(addr, from_block):
         from_block=from_block,
         event_type='Transfer'
     )
+    trans_df = eu.transfer_cols(trans_df)
     print('Dataframes built')

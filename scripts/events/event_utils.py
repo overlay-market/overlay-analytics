@@ -25,3 +25,13 @@ def get_event_df(contract, from_block, to_block=None, event_type=None):
         columns=['address', 'event', 'logIndex', 'transactionHash']
     )
     return event_df.join(args_df)
+
+
+def transfer_cols(df):
+    '''
+    Add columns for joining with build, unwind and liq dfs
+    '''
+    df.loc[:, 'logIndexMinusOne'] = df.loc[:, 'logIndex'] - 1
+    df.loc[:, 'logIndexMinusTwo'] = df.loc[:, 'logIndex'] - 2
+    df.loc[:, 'logIndexMinusThr'] = df.loc[:, 'logIndex'] - 3
+    return df
