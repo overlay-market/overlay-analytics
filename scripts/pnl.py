@@ -1,23 +1,13 @@
-from brownie import Contract, multicall
 import pandas as pd
-import numpy as np
-import time
 from scripts.events import event_utils as eu
 from scripts.events import build, unwind
 from scripts.events import liquidations as liq
+from scripts.state import positions
 from scripts import utils
 
 
 ADDR = '0x70cb456202e9ad25d3fdf1d0ac5d6b299a42dc99'
 FROM_BLK = 16002247
-
-
-def active_pos_value(positions, state):
-    multicall(address='0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696')
-    with multicall:
-        pos_value = [state.value(pos[0], pos[1], pos[2])
-                     for pos in positions]
-    return pos_value
 
 
 def main():
@@ -68,3 +58,40 @@ def main():
 
     # Merge liquidations df
     df = liq.merge_liqs(df, liq_df)
+
+    # Get unrealised values
+    pos = df.loc[df['fraction_remain'] > 0, ['market', 'user', 'positionId']]
+    pos_list = pos.values.tolist()
+    pos_values = positions.active_pos_value(pos_list, state)
+    pos['active_pos_value'] = pos_values
+    pos['active_pos_value'] = pos['active_pos_value']/1e18
+    df = df.merge(pos, how='left', on=['market', 'user', 'positionId'])
+    df['unrealised_value'] = df.unrealised_value.combine_first(
+                                                    df.active_pos_value)
+    df.drop('active_pos_value', axis=1, inplace=True)
+    df.loc[df['unrealised_value'].isna(), 'unrealised_value'] = 0
+
+    # Get PnLs and PnL percentages
+    df['rpnl'] =\
+        df.realised_value - ((1-df.fraction_remain) * df.amount_in)
+    df['rpnl_perc'] =\
+        df['rpnl']/((1-df.fraction_remain) * df.amount_in)
+    # If liquidated, then realised value to be compared to entire amount_in
+    df.loc[df.liquidated == 'True', 'rpnl'] = df.realised_value - df.amount_in
+    df.loc[df.liquidated == 'True', 'rpnl_perc'] = df['rpnl']/df.amount_in
+    df['upnl'] = df.unrealised_value - (df.fraction_remain * df.amount_in)
+    df['upnl'] = pd.to_numeric(df['upnl'])
+    df['upnl_perc'] = df['upnl']/(df.fraction_remain * df.amount_in)
+    df['total_pnl'] = (df.realised_value + df.unrealised_value) - df.amount_in
+    df['total_pnl_perc'] = df.total_pnl/df.amount_in
+    perc_cols = ['rpnl_perc', 'upnl_perc', 'total_pnl_perc']
+    df.loc[:, perc_cols] = df.loc[:, perc_cols].fillna(0)
+    df.loc[:, perc_cols] = df.loc[:, perc_cols].multiply(100)
+    print('PnLs calculated')
+    cols = ['market', 'user', 'positionId', 'debt', 'oi', 'mid_price',
+            'isLong', 'amount_in', 'leverage', 'fraction_remain', 'liquidated',
+            'liq_price', 'realised_value', 'rpnl', 'rpnl_perc',
+            'unrealised_value', 'upnl', 'upnl_perc',
+            'total_pnl', 'total_pnl_perc']
+    df = df[cols]
+    return df
