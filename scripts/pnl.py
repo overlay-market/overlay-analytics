@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import time
 from scripts.events import event_utils as eu
-from scripts.events import build
+from scripts.events import build, unwind
 from scripts import utils
 
 
@@ -58,3 +58,6 @@ def main():
 
     # Add leverage info
     build_df = build.add_lev_col(build_df)
+
+    # Get value and fraction unwound
+    unwind_df = unwind.get_unwound_value(unwind_df, trans_df)
