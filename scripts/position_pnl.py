@@ -6,35 +6,31 @@ from scripts.state import positions
 from scripts import utils
 
 
-ADDR = '0x70cb456202e9ad25d3fdf1d0ac5d6b299a42dc99'
-FROM_BLK = 16002247
-
-
-def main():
+def main(addr, from_blk):
     # Load contracts
-    market = utils.load_contract(ADDR)
+    market = utils.load_contract(addr)
     state = utils.load_contract('0x477122219aa1F76E190f480a85af97DE0A643320')
     token = utils.load_contract('0xdc77acc82cce1cc095cba197474cc06824ade6f7')
     print('Contracts loaded')
     # Get events dataframes
     build_df = eu.get_event_df(
         contract=market,
-        from_block=FROM_BLK,
+        from_block=from_blk,
         event_type='Build'
     )
     unwind_df = eu.get_event_df(
         contract=market,
-        from_block=FROM_BLK,
+        from_block=from_blk,
         event_type='Unwind'
     )
     liq_df = eu.get_event_df(
         contract=market,
-        from_block=FROM_BLK,
+        from_block=from_blk,
         event_type='Liquidate'
     )
     trans_df = eu.get_event_df(
         contract=token,
-        from_block=FROM_BLK,
+        from_block=from_blk,
         event_type='Transfer'
     )
     trans_df = eu.transfer_cols(trans_df)
