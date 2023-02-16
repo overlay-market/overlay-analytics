@@ -4,6 +4,7 @@ import numpy as np
 import time
 from scripts.events import event_utils as eu
 from scripts.events import build, unwind
+from scripts.events import liquidations as liq
 from scripts import utils
 
 
@@ -48,7 +49,6 @@ def main():
     )
     trans_df = eu.transfer_cols(trans_df)
     print('Dataframes built')
-    breakpoint()
 
     # Join build and transfers to get initial collateral from `value`
     build_df = build.join_build_trans(build_df, trans_df)
@@ -61,3 +61,10 @@ def main():
 
     # Get value and fraction unwound
     unwind_df = unwind.get_unwound_value(unwind_df, trans_df)
+
+    # Merge build and unwind dfs
+    df = build_df.merge(unwind_df, how='left',
+                        on=['market', 'user', 'positionId'])
+
+    # Merge liquidations df
+    df = liq.merge_liqs(df, liq_df)
