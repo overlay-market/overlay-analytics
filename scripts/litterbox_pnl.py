@@ -20,10 +20,9 @@ def main():
         .groupby('user').sum().reset_index()
     eth_pnl = eth_pnl.loc[:, ['user', 'total_pnl']]\
         .groupby('user').sum().reset_index()
-    total_pnl = eth_pnl.merge(
-        btc_pnl, how='outer', on='user',
-        suffixes=('_eth', '_btc')
-    ).fillna(0, inplace=True)
+    total_pnl = eth_pnl.merge(btc_pnl, how='outer',
+                              on='user', suffixes=('_eth', '_btc'))
+    total_pnl.fillna(0, inplace=True)
 
     # Get list of all position builders
     user_list = list(set(list(btc_pnl.user) + list(eth_pnl.user)))
@@ -33,3 +32,8 @@ def main():
     curr_bals = pd.DataFrame({'user': user_list, 'curr_balance': curr_bals})
     old_bals = bal.get_past_balances(user_list, ovl, start_block)
     old_bals = pd.DataFrame({'user': user_list, 'old_balance': old_bals})
+    bals = curr_bals.merge(old_bals, on='user', how='inner')
+
+    # Merge balances and PnLs
+    breakpoint()
+
