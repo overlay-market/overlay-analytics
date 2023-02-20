@@ -79,6 +79,7 @@ def main(addr, from_blk):
     df['upnl'] = pd.to_numeric(df['upnl'])
     df['upnl_perc'] = df['upnl']/(df.fraction_remain * df.amount_in)
     df['total_pnl'] = (df.realised_value + df.unrealised_value) - df.amount_in
+    df['total_pnl'] = pd.to_numeric(df['total_pnl'])
     df['total_pnl_perc'] = df.total_pnl/df.amount_in
     perc_cols = ['rpnl_perc', 'upnl_perc', 'total_pnl_perc']
     df.loc[:, perc_cols] = df.loc[:, perc_cols].fillna(0)
@@ -90,4 +91,5 @@ def main(addr, from_blk):
             'unrealised_value', 'upnl', 'upnl_perc',
             'total_pnl', 'total_pnl_perc']
     df = df[cols]
+    df['user'] = df.user.str.lower()
     return df
