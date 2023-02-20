@@ -30,4 +30,9 @@ def main():
                 token_events.Transfer,
                 ['address', 'event', 'logIndex', 'transactionHash']
                 )
-    
+    trans_df['from'] = trans_df['from'].str.lower()
+    trans_df['to'] = trans_df['to'].str.lower()
+
+    air = pd.read_csv('csv_inputs/airdropped_users.csv')
+    air_tx = trans_df.merge(air, left_on='from', right_on='user', how='inner')
+    air_tx2 = air_tx.merge(air, left_on='to', right_on='user', how='inner')
