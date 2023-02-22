@@ -1,4 +1,5 @@
 import pandas as pd
+from brownie import web3
 
 
 def get_events(contract, from_block, to_block, event_type):
@@ -36,3 +37,7 @@ def transfer_cols(df):
     df.loc[:, 'logIndexMinusTwo'] = df.loc[:, 'logIndex'] - 2
     df.loc[:, 'logIndexMinusThr'] = df.loc[:, 'logIndex'] - 3
     return df
+
+
+def get_block_timestamp(b):
+    return web3.eth.get_block(b).timestamp
