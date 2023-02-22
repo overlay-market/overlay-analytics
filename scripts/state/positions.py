@@ -11,4 +11,4 @@ def active_pos_value(positions, state):
 
 def pos_value_historic(pos, state, blk):
     pos_value = state.value(pos[0], pos[1], pos[2], block_identifier=blk)
-    return pos_value
+    return pos_value/1e18

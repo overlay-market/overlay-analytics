@@ -1,4 +1,6 @@
 from datetime import datetime
+import pandas as pd
+from brownie import chain
 from scripts.state import positions
 from scripts.state import prices
 from scripts.events import event_utils as eu
@@ -8,12 +10,23 @@ MKT_ADDR = "0x7f72986e190bbd1d02dac52b8dda82eea363d313"
 USER = "0x69e4cF9a2C778Fb5b08F14F65CFa2f425DCA3eAC".lower()
 POS_ID = 246
 FRM_BLK = 15949364
+STEP = 43200
 
 
 def main(mkt_addr=MKT_ADDR,
          user=USER,
          pos_id=POS_ID,
-         frm_blk=FRM_BLK):
+         frm_blk=FRM_BLK,
+         step=STEP):
+    '''
+    Inputs:
+        mkt_addr: Address of the market being analysed
+        user: EOA of position builder
+        pos_id: Position ID
+        frm_blk: Block number at a sufficiently old time in history, after
+        which user should have created position
+        step: Interval at which value of position is queried (in secs)
+    '''
 
     pos = (mkt_addr, user, pos_id)
 
@@ -30,5 +43,22 @@ def main(mkt_addr=MKT_ADDR,
     # Get block number when position was built
     build_block = int(build_df[build_df.positionId == pos_id].blockNumber)
 
-    positions.pos_value_historic(pos, build_block+1, state)
-    prices.get_historic_prices(market, build_block+1, state)
+    # Get historic prices and position values at various blocks
+    blk_l = list(range(build_block, chain.height, int(step/12)))
+    values = []
+    bids = []
+    for i in blk_l:
+        values.append(positions.pos_value_historic(pos, state, i))
+        bids.append(prices.get_historic_bids(market, state, i))
+
+    # Create dataframe
+    df = pd.DataFrame(
+        {'block': blk_l,
+         'bid': bids,
+         'value': values}
+    )
+
+    # Find out value of position only due to changes in bid price
+    df['value_without_funding'] = (df.bid/df.bid[0]) * df.value[0]
+    df['% lost or gained due to funding'] = \
+        (df.value/df.value_without_funding - 1) * 100
