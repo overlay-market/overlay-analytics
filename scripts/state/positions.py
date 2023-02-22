@@ -7,3 +7,8 @@ def active_pos_value(positions, state):
         pos_value = [state.value(pos[0], pos[1], pos[2])
                      for pos in positions]
     return pos_value
+
+
+def pos_value_historic(pos, blk, state):
+    pos_value = state.value(pos[0], pos[1], pos[2], block_identifier=blk)
+    return pos_value
