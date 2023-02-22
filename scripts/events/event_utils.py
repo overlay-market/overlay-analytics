@@ -22,7 +22,8 @@ def get_event_df(contract, from_block, to_block=None, event_type=None):
     args_df = get_args_df(event_list)
     event_df = pd.DataFrame(
         event_list,
-        columns=['address', 'event', 'logIndex', 'transactionHash']
+        columns=['address', 'event', 'logIndex',
+                 'transactionHash', 'blockNumber']
     )
     return event_df.join(args_df)
 
