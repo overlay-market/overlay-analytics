@@ -1,4 +1,4 @@
-from datetime import datetime
+import matplotlib.pyplot as plt
 import pandas as pd
 from brownie import chain
 from scripts.state import positions
@@ -10,7 +10,7 @@ MKT_ADDR = "0x7f72986e190bbd1d02dac52b8dda82eea363d313"
 USER = "0x69e4cF9a2C778Fb5b08F14F65CFa2f425DCA3eAC".lower()
 POS_ID = 246
 FRM_BLK = 15949364
-STEP = 43200
+STEP = 86400
 
 
 def main(mkt_addr=MKT_ADDR,
@@ -60,5 +60,39 @@ def main(mkt_addr=MKT_ADDR,
 
     # Find out value of position only due to changes in bid price
     df['value_without_funding'] = (df.bid/df.bid[0]) * df.value[0]
+    df['PnL'] = df.value - df.value[0]
+    df['Pnl without funding'] = df.value_without_funding - df.value[0]
     df['% lost or gained due to funding'] = \
         (df.value/df.value_without_funding - 1) * 100
+
+    df['time'] = df['block'].apply(lambda x: eu.get_block_timestamp(x))
+
+    # Plot
+    # TODO: Function for plot
+    fig = plt.figure(figsize=(10, 5))
+
+    # Create axis objects for the lines and bar chart
+    ax1 = fig.add_subplot()
+    ax2 = ax1.twinx()
+
+    # Plot the first line
+    ax1.plot(df['time'], df['PnL'], color='red', label='PnL')
+
+    # Plot the second line
+    ax1.plot(df['time'], df['Pnl without funding'], color='green', label='Pnl without funding')
+
+    # Plot the bar chart on the second axis
+    ax2.bar(df['time'], df['% lost or gained due to funding'], color='blue', alpha=0.5, label='% lost or gained due to funding')
+
+    # Set labels and legend
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('# OVL')
+    ax1.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+
+    # Rotate the x-axis labels by 90 degrees
+    ax1.set_xticklabels(df['time'], rotation=90)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()

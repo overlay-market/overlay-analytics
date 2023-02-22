@@ -1,5 +1,6 @@
 import pandas as pd
 from brownie import web3
+from datetime import datetime
 
 
 def get_events(contract, from_block, to_block, event_type):
@@ -40,4 +41,5 @@ def transfer_cols(df):
 
 
 def get_block_timestamp(b):
-    return web3.eth.get_block(b).timestamp
+    epoch_time = web3.eth.get_block(b).timestamp
+    return datetime.fromtimestamp(epoch_time).strftime("%Y%m%d-%H%M%S")
