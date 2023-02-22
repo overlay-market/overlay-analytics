@@ -1,4 +1,5 @@
 import pandas as pd
+import time
 import scripts.position_pnl as pp
 from scripts.state import balances as bal
 from scripts.utils import load_contract
@@ -23,9 +24,6 @@ def main():
     total_pnl = eth_pnl.merge(btc_pnl, how='outer',
                               on='user', suffixes=('_eth', '_btc'))
     total_pnl.fillna(0, inplace=True)
-    # total_pnl['total_value'] = \
-    #     total_pnl[['amount_in_eth', 'amount_in_btc',
-    #                'realised_value_eth', 'realised_value_btc']].sum(axis=1)
 
     # Get list of all position builders
     user_list = list(set(list(btc_pnl.user) + list(eth_pnl.user)))
@@ -43,6 +41,6 @@ def main():
     # Get airdropped users
     air = pd.read_csv('csv_inputs/airdropped_users.csv')
     air_lb_pnl = lb_pnl.merge(air, on='user', how='inner')
-    
+
     # Save lb pnls to csv
-    air_lb_pnl.to_csv('csv/lb_pnls.csv')
+    air_lb_pnl.to_csv(f'csv/lb_pnls_{time.strftime("%Y%m%d-%H%M%S")}.csv')
