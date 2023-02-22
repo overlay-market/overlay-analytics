@@ -10,7 +10,11 @@ POS_ID = 246
 FRM_BLK = 15949364
 
 
-def main(mkt_addr=MKT_ADDR, user=USER, pos_id=POS_ID, frm_blk=FRM_BLK):
+def main(mkt_addr=MKT_ADDR,
+         user=USER,
+         pos_id=POS_ID,
+         frm_blk=FRM_BLK):
+
     pos = (mkt_addr, user, pos_id)
 
     market = utils.load_contract(mkt_addr)
@@ -23,4 +27,8 @@ def main(mkt_addr=MKT_ADDR, user=USER, pos_id=POS_ID, frm_blk=FRM_BLK):
         event_type='Build'
     )
 
+    # Get block number when position was built
     build_block = int(build_df[build_df.positionId == pos_id].blockNumber)
+
+    positions.pos_value_historic(pos, build_block+1, state)
+    prices.get_historic_prices(market, build_block+1, state)
