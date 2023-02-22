@@ -9,6 +9,6 @@ def active_pos_value(positions, state):
     return pos_value
 
 
-def pos_value_historic(pos, blk, state):
+def pos_value_historic(pos, state, blk):
     pos_value = state.value(pos[0], pos[1], pos[2], block_identifier=blk)
     return pos_value
