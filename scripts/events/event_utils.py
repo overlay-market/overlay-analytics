@@ -40,6 +40,11 @@ def transfer_cols(df):
     return df
 
 
-def get_block_timestamp(b):
+def get_block_timestamp(b, format):
+    '''
+    Inputs:
+        b: Block number for which timestamp is required
+        format: The format string of the timestamp. eg: "%Y%m%d-%H%M%S"
+    '''
     epoch_time = web3.eth.get_block(b).timestamp
-    return datetime.fromtimestamp(epoch_time).strftime("%Y%m%d-%H%M%S")
+    return datetime.fromtimestamp(epoch_time).strftime(format)
