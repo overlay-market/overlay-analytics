@@ -1,4 +1,5 @@
 csv/
-scripts/adhoc/__pycache__
+__pycache__
 build/
 .env
+notes
